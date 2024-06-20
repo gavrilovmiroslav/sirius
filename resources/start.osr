@@ -1,0 +1,3 @@
+main_start {
+    KB { IF StartUp(1) THEN DoThis(1); }
+}

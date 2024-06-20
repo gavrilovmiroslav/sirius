@@ -1,0 +1,5 @@
+main {
+    INIT { DoThat(1); }
+    KB { DoThis(1); }
+    EXIT { NOT DoThis(1); }
+}
