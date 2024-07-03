@@ -100,19 +100,30 @@ class OsirisParser extends RegexParsers {
     }
 
     def query = "QRY" ~> fact ~ (("AND" ~> rep1sep(condition, "AND"))?) ~ "THEN" ~ rep1sep(action, ";") <~ ";" ^^ { 
-        case fact ~ conds ~ _ ~ actions => 
-            Query(fact, conds.map(_.toSeq).getOrElse(Seq()), actions.toSeq)
+        case name ~ conds ~ _ ~ actions => 
+            Query(name, conds.map(_.toSeq).getOrElse(Seq()), actions.toSeq)
     }
 
     def proc = "PROC" ~> fact ~ (("AND" ~> rep1sep(condition, "AND"))?) ~ "THEN" ~ rep1sep(action, ";") <~ ";" ^^ { 
-        case fact ~ conds ~ _ ~ actions => 
-            Proc(fact, conds.map(_.toSeq).getOrElse(Seq()), actions.toSeq)
+        case name ~ conds ~ _ ~ actions => 
+            Proc(name, conds.map(_.toSeq).getOrElse(Seq()), actions.toSeq)
+    }
+
+    def rest = """[^\]]*""".r ^^ { case str =>
+        str.substring(0, str.length)
+    }
+
+    def cypher = "[" ~> (variable ~ rest) <~ "]" ^^ {
+        case name ~ code =>
+            Cypher(name.name, code.trim())
     }
 
     def action_statements: Parser[OsirisAction] = (affirm | negate) <~ ";"
-    def statement = if_then | query | proc | action_statements
+    def statement = cypher | if_then | query | proc | action_statements
 
-    def block: Parser[Block] = (raw_word <~ "{") ~ rep(statement) <~ "}" ^^ {
+    def statements = rep(statement)
+
+    def block: Parser[Block] = (raw_word <~ "{") ~ statements <~ "}" ^^ {
         case name ~ statements => {
             Block(name, statements)
         }
@@ -140,8 +151,8 @@ class OsirisParser extends RegexParsers {
         }
     }
 
-    def parseProgram(s: String): Option[Program] = {
-        parse(program, s) match {
+    def parseProgram(s: String): Option[Seq[OsirisStatement]] = {
+        parse(statements, s) match {
             case Success(result, _) => Some(result)
             case _ => None
         }

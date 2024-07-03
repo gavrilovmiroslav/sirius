@@ -1,5 +1,6 @@
-main {
-    INIT { DoThat(1); }
-    KB { DoThis(1); }
-    EXIT { NOT DoThis(1); }
-}
+[SET IsRedOrBlue(X)
+    IF IsRed(X)
+    OR IsBlue(X)]
+
+IF IsRedOrBlue(X)
+THEN DB_MyGod(X);

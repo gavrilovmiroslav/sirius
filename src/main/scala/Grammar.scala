@@ -188,6 +188,11 @@ case class Proc(fact: Fact, cond: Seq[Condition], action: Seq[OsirisAction]) ext
         s"PROC ${fact} ${conds} THEN ${action.mkString("; ")};"
     }
 }
+case class Cypher(name: String, code: String) extends OsirisStatement {
+    override def toString(): String = {
+        s"CYPHER!"
+    }
+}
 
 case class Block(name: String, statements: Seq[OsirisStatement]) {
     override def toString(): String = {
@@ -207,4 +212,8 @@ case class Program(goals: Seq[Goal]) {
     override def toString(): String = {
         goals.map(_.toString).mkString("\n")
     }
+}
+
+object OsirisGrammar {
+    def noop = Affirm(Fact("DB_NOOP", Seq(Literal("1", Some(OsirisInteger)))))
 }

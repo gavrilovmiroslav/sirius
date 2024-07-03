@@ -285,6 +285,14 @@ class ParsingTestsSuite extends AnyFunSuite {
         )
     }
 
+    test("Parsing cypher") {
+        val parser = new OsirisParser();
+        assert(
+            parser.run(parser.cypher, "[ HELLO world here i am]") ==
+                Cypher("HELLO", "world here i am")
+        );
+    }
+
     test("Parsing goals") {
         val parser = new OsirisParser();
         assert(
